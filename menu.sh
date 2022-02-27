@@ -1,4 +1,4 @@
-#/bin/bash -xe
+#/bin/bash
 source "src/functions.sh";
 
 if [[ $EUID -ne 0 ]]; then
