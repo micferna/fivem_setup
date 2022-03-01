@@ -255,7 +255,7 @@ sv_licenseKey LICENSEKEY
 
 EOF
 
-mv src/manage.sh /mnt/gta
+cp src/manage.sh /mnt/gta
 
 
 fi
