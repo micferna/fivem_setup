@@ -22,7 +22,7 @@ Le répertoire du jeu est situé dans  `/mnt/gta` Placez votre serveur de jeux �
 
 
 ### Pour ceux qui on installé FiveM depuis le menu  
-Dans la consola shell tapez ces deux lignes
+Dans la console shell tapez ces trois lignes
 ```
 echo "alias fivem='sh /mnt/gta/manage.sh'" >> ~/.bashrc
 chmod +x /mnt/gta/manage.sh
