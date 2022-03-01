@@ -41,15 +41,15 @@ WEB:      micferna.eu
 
 show_menu() {
   show_main_title
-    printf "%s\n" "------------------------------"
-    printf "%s\n" "  MENU D'UTILISATION          " 
-    printf "%s\n" "------------------------------"
+    printf "%s\n" "-------------------------------"
+    printf "%s\n" "  MENU D'UTILISATION           " 
+    printf "%s\n" "-------------------------------"
     printf "%s\n" "  A FAIRE SUR UN SERVEUR VIERGE"
-    printf "%s\n" "------------------------------"
+    printf "%s\n" "-------------------------------"
     printf "%s\n" "  1. Installer un serveur web   ?    | (Nginx) " 
     printf "%s\n" "  2. Installer un serveur mysql ?    | (MariaDB-Server)"
     printf "%s\n" "  3. Installer un serveur FiveM ?    | (install auto avec une template basique)"
-    printf "%s\n" "  4. Installer un certificat lets'encrypt SSL ? "
+    printf "%s\n" "  4. Installer un certificat Let's Encrypt SSL ? "
     printf "%s\n" "  0. Exit" 
     printf "%s\n" ""
 }
@@ -98,6 +98,8 @@ else
 
   apt update
   apt install nginx   
+  mkdir /var/www
+  wget https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1-mysql.php /var/www/adminer.php
 fi
   pause
 }
@@ -171,7 +173,7 @@ mv alpine /mnt/gta
 mv run.sh /mnt/gta
 rm -rf fx.tar.xz
 git clone https://github.com/citizenfx/cfx-server-data.git /mnt/gta/server-data
-chown -R $USER:$USER /mnt/gta
+chown 755 /mnt/gta
 
 
 
@@ -263,5 +265,143 @@ fi
 pause
 
 }
+
+function letsencrypt {
+
+if [[ -d "/etc/letsencrypt"]]; then
+
+  printf "%s\n" "
+                Let's Encrypt est déjà installé. ! ⚠️
+                "
+else
+apt install python3-certbot-nginx
+
+echo "Rentrez votre nom de domaine pour avoir le certificat SSL"
+echo "Par exemple: google.fr ou si vous avez configuré un CNAME images.google.fr"
+read ndd_ssl
+
+echo "Renseignez une adresse mail valide pour recevoir une notif quand le certificat ssl sera au bout de ça validité"
+echo email_ssl
+certbot certonly --nginx --agree-tos --no-eff-email --email "$email_ssl" -d "$ndd_ssl"
+
+rm -rf /etc/nginx/nginx.conf
+cat <<EOF > /etc/nginx/nginx.conf
+user www-data;
+worker_processes auto;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll; # gestionnaire d'évènements epoll (kernel 2.6+)
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    access_log /var/log/nginx/access.log combined;
+    error_log /var/log/nginx/error.log error;
+
+    sendfile on;
+    keepalive_timeout 15;
+    keepalive_disable msie6;
+    keepalive_requests 100;
+    tcp_nopush on;
+    tcp_nodelay off;
+    server_tokens off;
+
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 512;
+    gzip_buffers 4 8k;
+    gzip_proxied any;
+    gzip_vary on;
+    gzip_disable "msie6";
+    gzip_types
+        text/css
+        text/javascript
+        text/xml
+        text/plain
+        text/x-component
+        application/javascript
+        application/x-javascript
+        application/json
+        application/xml
+        application/rss+xml
+        application/vnd.ms-fontobject
+        font/truetype
+        font/opentype
+        image/svg+xml;
+
+    include /etc/nginx/sites-enabled/*.conf;
+}
+
+EOF
+
+rm -rf /etc/nginx/conf.d/default
+mkdir /etc/nginx/sites-enabled
+cat <<EOF > /etc/nginx/sites-enabled/default.conf
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${ndd_ssl};
+    return 301 https://${ndd_ssl}$request_uri;
+}
+
+server {
+    listen 443 http2 ssl;
+    listen [::]:443 http2 ssl;
+    server_name ${ndd_ssl};
+
+    charset utf-8;
+    index index.html index.php;
+    client_max_body_size 10M;
+
+    ssl_certificate /etc/letsencrypt/live/${ndd_ssl}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${ndd_ssl}/privkey.pem;
+
+    access_log /var/log/nginx/access.log combined;
+    error_log /var/log/nginx/error.log error;
+
+    error_page 500 502 503 504 /50x.html;
+
+    root /var/www/;
+
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+
+    location = /favicon.ico {
+        access_log off;
+        log_not_found off;
+    }
+
+    #location / {
+    #allow Rensignez votre ip publique de votre BOX INTERNET pour whitelist votre IP sur la page du serveur /!\ ATTENTION cette page est définie sur votre page PUBLIC du serveur /!\;
+    #deny all;
+    #}
+
+    location ~ \.php$ {
+        fastcgi_index index.php;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+    }
+
+    location ~* \.(jpg|jpeg|gif|css|png|js|map|woff|woff2|ttf|svg|eot)$ {
+        expires 30d;
+        access_log off;
+    }
+
+}
+EOF
+
+
+
+fi
+  pause  
+}
+
+
 
 # Quel bordel p'tin !
