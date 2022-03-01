@@ -99,11 +99,11 @@ else
   apt update
   apt install nginx   
   mkdir /var/www
-  wget https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1-mysql.php /var/www/adminer.php
+  wget https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1-mysql.php
+  mv adminer-4.8.1-mysql.php /var/www/adminer.php
 fi
   pause
 }
-
 
 function install_mariadb {
 if which mysql >/dev/null; then
