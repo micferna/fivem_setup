@@ -51,7 +51,6 @@ show_menu() {
     printf "%s\n" "  3. Installer un serveur FiveM ?    | (install auto avec une template basique)"
     printf "%s\n" "  4. Installer un certificat Let's Encrypt SSL ? "
     printf "%s\n" "-------------------------------"
-    printf "%s\n" "-------------------------------"
     printf "%s\n" "  8. Crées un compte user aléatoirement pour mariadb ? "
     printf "%s\n" "  0. Exit" 
     printf "%s\n" ""
