@@ -50,6 +50,9 @@ show_menu() {
     printf "%s\n" "  2. Installer un serveur mysql ?    | (MariaDB-Server)"
     printf "%s\n" "  3. Installer un serveur FiveM ?    | (install auto avec une template basique)"
     printf "%s\n" "  4. Installer un certificat Let's Encrypt SSL ? "
+    printf "%s\n" "-------------------------------"
+    printf "%s\n" "-------------------------------"
+    printf "%s\n" "  8. Crées un compte user aléatoirement pour mariadb ? "
     printf "%s\n" "  0. Exit" 
     printf "%s\n" ""
 }
@@ -64,6 +67,7 @@ read_input(){
     2) install_mariadb ;;
     3) install_fivem ;; 
     4) install_letsencrypt ;;
+    8) compte_user_mariadb ;;
     0) printf "%s\n" "Ciao!"; exit 0 ;;
     *)
        printf "%s\n" "Choisir une option entre (1 to 4):  "
@@ -402,6 +406,26 @@ fi
   pause  
 }
 
+function compte_user_mariadb {
+apt install pwgen
+
+PASS=`pwgen -s 70 1`
+user=`pwgen 12 1`
+
+mysql -uroot <<MYSQL_SCRIPT
+CREATE DATABASE $user character set utf8mb4 collate utf8mb4_unicode_ci;
+CREATE USER '$user'@'%' IDENTIFIED BY '$PASS';
+GRANT ALL PRIVILEGES ON $user.* TO '$user'@'%';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+
+echo -e ${bleu}"Utilisateur MySQL crées.\n"${neutre}
+echo -e "${rouge}Username:${neutre}   $user"
+echo -e "${rouge}Password:${neutre}   $PASS"
+
+pause
+
+}
 
 
 # Quel bordel p'tin !
