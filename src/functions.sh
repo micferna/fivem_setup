@@ -266,7 +266,7 @@ pause
 
 }
 
-function letsencrypt {
+function install_letsencrypt {
 
 if [[ -d "/etc/letsencrypt"]]; then
 
