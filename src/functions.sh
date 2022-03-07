@@ -69,7 +69,7 @@ read_input(){
     8) compte_user_mariadb ;;
     0) printf "%s\n" "Ciao!"; exit 0 ;;
     *)
-       printf "%s\n" "Choisir une option entre (1 to 4):  "
+       printf "%s\n" "Choisir une option entre (1 et 8):  "
 
        pause
 esac 
