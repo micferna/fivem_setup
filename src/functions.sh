@@ -60,7 +60,7 @@ read_input(){
   # get user input via keyboard and make a decision using case...esac 
 
   local c
-  read -p "Faite votre choix [ 1-4 ]:  " c
+  read -p "Faite votre choix [ 1-8 ]:  " c
   case $c in
     1) install_nginx ;;
     2) install_mariadb ;;
